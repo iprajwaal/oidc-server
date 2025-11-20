@@ -1,0 +1,21 @@
+<h1>Authorization Successful</h1>
+<p>You have been redirected back to the client.</p>
+
+<div class="container">
+    <h3>Authorization Code</h3>
+    <pre><code>{{code}}</code></pre>
+
+    <h3>Exchange for Token</h3>
+    <p>Run the following command to get an access token:</p>
+    <pre><code>curl -X POST http://localhost:3000/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "grant_type": "authorization_code",
+    "code": "{{code}}",
+    "redirect_uri": "http://localhost:3000/callback",
+    "client_id": "oidc-client-test",
+    "code_verifier": "xyz"
+  }'</code></pre>
+</div>
+
+<p><a href="/">Back to Home</a></p>

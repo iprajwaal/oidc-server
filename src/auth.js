@@ -53,7 +53,7 @@ async function getWebAuthnRegistrationOptions(username) {
     const options = await generateRegistrationOptions({
         rpName: RP_NAME,
         rpID: RP_ID,
-        userID: user.sub,
+        userID: new Uint8Array(Buffer.from(user.sub)),
         userName: user.username,
         attestationType: 'none',
         excludeCredentials: userCredentials.map(cred => ({

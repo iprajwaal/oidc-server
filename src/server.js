@@ -10,7 +10,7 @@ const oidc = require('./oidc');
 const auth = require('./auth');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Initialize DB
 init();
@@ -31,6 +31,15 @@ app.use(session({
 }));
 
 // --- OIDC Endpoints ---
+
+app.get('/', (req, res) => {
+    res.render('home');
+});
+
+app.get('/callback', (req, res) => {
+    const { code } = req.query;
+    res.render('callback', { code });
+});
 
 app.get('/.well-known/openid-configuration', (req, res) => {
     res.json(oidc.getDiscovery());
