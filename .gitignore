@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+oidc.db
+oidc.db-shm
+oidc.db-wal
+.env

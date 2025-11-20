@@ -1,0 +1,82 @@
+<h1>Login</h1>
+{{#if error}}
+<p class="error">{{error}}</p>
+{{/if}}
+
+<div id="password-login">
+    <h2>Password Login</h2>
+    <form action="/login" method="post">
+        <input type="hidden" name="client_id" value="{{client_id}}">
+        <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
+        <input type="hidden" name="state" value="{{state}}">
+        <input type="hidden" name="scope" value="{{scope}}">
+        <input type="hidden" name="code_challenge" value="{{code_challenge}}">
+        <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}">
+
+        <label>Username: <input type="text" name="username" required></label><br>
+        <label>Password: <input type="password" name="password" required></label><br>
+        <button type="submit">Login</button>
+    </form>
+</div>
+
+<hr>
+
+<div id="passkey-login">
+    <h2>Passkey Login</h2>
+    <button id="btn-passkey-login">Login with Passkey</button>
+    <p id="passkey-message"></p>
+</div>
+
+<script>
+    const { startAuthentication } = SimpleWebAuthnBrowser;
+
+    document.getElementById('btn-passkey-login').addEventListener('click', async () => {
+        const message = document.getElementById('passkey-message');
+        message.innerText = 'Starting passkey login...';
+
+        try {
+            // 1. Get options from server
+            const resp = await fetch('/webauthn/login/options');
+            const options = await resp.json();
+
+            // 2. Start authentication
+            const asseResp = await startAuthentication(options);
+
+            // 3. Verify with server
+            const verificationResp = await fetch('/webauthn/login/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(asseResp),
+            });
+
+            const verificationJSON = await verificationResp.json();
+
+            if (verificationJSON && verificationJSON.verified) {
+                message.innerText = 'Success! Redirecting...';
+                // Redirect back to authorize endpoint to complete flow
+                // We need to preserve the original query params.
+                // Since we are in a SPA-like flow here, we can just reload the page 
+                // or post to a completion endpoint.
+                // For simplicity, we'll post to a special endpoint that sets the session and redirects.
+
+                // Construct the original authorize URL
+                const params = new URLSearchParams({
+                    client_id: '{{client_id}}',
+                    redirect_uri: '{{redirect_uri}}',
+                    state: '{{state}}',
+                    scope: '{{scope}}',
+                    code_challenge: '{{code_challenge}}',
+                    code_challenge_method: '{{code_challenge_method}}',
+                    response_type: 'code'
+                });
+
+                window.location.href = `/authorize?${params.toString()}`;
+            } else {
+                message.innerText = 'Verification failed: ' + JSON.stringify(verificationJSON);
+            }
+        } catch (error) {
+            message.innerText = 'Error: ' + error.message;
+            console.error(error);
+        }
+    });
+</script>

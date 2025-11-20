@@ -1,0 +1,43 @@
+<h1>Register New Passkey</h1>
+<p>User: {{user.username}}</p>
+
+<button id="btn-register">Register Passkey</button>
+<p id="message"></p>
+<br>
+<a href="/">Back to Home</a>
+
+<script>
+    const { startRegistration } = SimpleWebAuthnBrowser;
+
+    document.getElementById('btn-register').addEventListener('click', async () => {
+        const message = document.getElementById('message');
+        message.innerText = 'Starting registration...';
+
+        try {
+            // 1. Get options
+            const resp = await fetch('/webauthn/register/options');
+            const options = await resp.json();
+
+            // 2. Start registration
+            const attResp = await startRegistration(options);
+
+            // 3. Verify
+            const verificationResp = await fetch('/webauthn/register/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(attResp),
+            });
+
+            const verificationJSON = await verificationResp.json();
+
+            if (verificationJSON && verificationJSON.verified) {
+                message.innerText = 'Success! Passkey registered.';
+            } else {
+                message.innerText = 'Verification failed: ' + JSON.stringify(verificationJSON);
+            }
+        } catch (error) {
+            message.innerText = 'Error: ' + error.message;
+            console.error(error);
+        }
+    });
+</script>
