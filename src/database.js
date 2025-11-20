@@ -54,13 +54,16 @@ function init() {
       FOREIGN KEY(user_sub) REFERENCES users(sub)
     )
   `);
-  
+
   // Seed a default client for testing
   const stmt = db.prepare('SELECT client_id FROM clients WHERE client_id = ?');
   if (!stmt.get('oidc-client-test')) {
-      const insert = db.prepare('INSERT INTO clients (client_id, client_secret, redirect_uris, client_name) VALUES (?, ?, ?, ?)');
-      insert.run('oidc-client-test', 'secret', JSON.stringify(['http://localhost:3000/callback']), 'Test Client');
-      console.log('Seeded test client: oidc-client-test');
+    const insert = db.prepare('INSERT INTO clients (client_id, client_secret, redirect_uris, client_name) VALUES (?, ?, ?, ?)');
+    insert.run('oidc-client-test', null, JSON.stringify(['http://localhost:3000/callback']), 'Test Client');
+    console.log('Seeded test client: oidc-client-test');
+  } else {
+    // Ensure it is public for this demo
+    db.prepare('UPDATE clients SET client_secret = NULL WHERE client_id = ?').run('oidc-client-test');
   }
 
   console.log('Database initialized');
