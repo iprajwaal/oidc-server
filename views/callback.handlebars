@@ -1,13 +1,20 @@
-<h1>Authorization Successful</h1>
-<p>You have been redirected back to the client.</p>
+<div class="card">
+  <div style="text-align: center;">
+    <span class="icon" style="font-size: 48px; color: var(--md-sys-color-primary);">check_circle</span>
+    <h1 class="headline-medium" style="margin-top: 16px;">Authorized</h1>
+    <p class="body-medium">You have successfully logged in.</p>
+  </div>
 
-<div class="container">
-    <h3>Authorization Code</h3>
+  <div>
+    <h3 class="title-medium">Authorization Code</h3>
+    <p class="body-medium" style="margin-bottom: 8px;">Exchange this code for tokens:</p>
     <pre><code>{{code}}</code></pre>
+  </div>
 
-    <h3>Exchange for Token</h3>
-    <p>Run the following command to get an access token:</p>
-    <pre><code>curl -X POST http://localhost:3000/token \
+  <div>
+    <h3 class="title-medium">Next Step</h3>
+    <p class="body-medium" style="margin-bottom: 8px;">Run this command in your terminal:</p>
+    <pre><code style="white-space: pre-wrap;">curl -X POST http://localhost:3000/token \
   -H "Content-Type: application/json" \
   -d '{
     "grant_type": "authorization_code",
@@ -16,6 +23,9 @@
     "client_id": "oidc-client-test",
     "code_verifier": "xyz"
   }'</code></pre>
-</div>
+  </div>
 
-<p><a href="/">Back to Home</a></p>
+  <a href="/" class="btn btn-tonal btn-full" style="text-decoration: none;">
+    Start Over
+  </a>
+</div>

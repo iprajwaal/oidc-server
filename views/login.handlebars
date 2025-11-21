@@ -1,11 +1,18 @@
-<h1>Login</h1>
-{{#if error}}
-<p class="error">{{error}}</p>
-{{/if}}
+<div class="card">
+    <div style="text-align: center;">
+        <span class="icon" style="font-size: 48px; color: var(--md-sys-color-primary);">lock_person</span>
+        <h1 class="headline-medium" style="margin-top: 16px;">Sign in</h1>
+        <p class="body-medium">to continue to <b>{{#if client_id}}{{client_id}}{{else}}OIDC Server{{/if}}</b></p>
+    </div>
 
-<div id="password-login">
-    <h2>Password Login</h2>
-    <form action="/login" method="post">
+    {{#if error}}
+    <div class="error-banner">
+        <span class="icon">error</span>
+        {{error}}
+    </div>
+    {{/if}}
+
+    <form action="/login" method="post" id="login-form">
         <input type="hidden" name="client_id" value="{{client_id}}">
         <input type="hidden" name="redirect_uri" value="{{redirect_uri}}">
         <input type="hidden" name="state" value="{{state}}">
@@ -13,36 +20,48 @@
         <input type="hidden" name="code_challenge" value="{{code_challenge}}">
         <input type="hidden" name="code_challenge_method" value="{{code_challenge_method}}">
 
-        <label>Username: <input type="text" name="username" required></label><br>
-        <label>Password: <input type="password" name="password" required></label><br>
-        <button type="submit">Login</button>
+        <div class="form-group">
+            <div class="text-field">
+                <input type="text" name="username" id="username" placeholder=" " required>
+                <label for="username">Username</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="text-field">
+                <input type="password" name="password" id="password" placeholder=" " required>
+                <label for="password">Password</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+            Sign in
+        </button>
     </form>
-</div>
 
-<hr>
+    <div class="divider">or</div>
 
-<div id="passkey-login">
-    <h2>Passkey Login</h2>
-    <button id="btn-passkey-login">Login with Passkey</button>
-    <p id="passkey-message"></p>
+    <button id="btn-passkey-login" class="btn btn-tonal btn-full">
+        <span class="icon">fingerprint</span>
+        Sign in with Passkey
+    </button>
+    <p id="passkey-message" class="body-medium"
+        style="text-align: center; min-height: 20px; color: var(--md-sys-color-primary);"></p>
 </div>
 
 <script>
     const { startAuthentication } = SimpleWebAuthnBrowser;
+    const messageEl = document.getElementById('passkey-message');
 
     document.getElementById('btn-passkey-login').addEventListener('click', async () => {
-        const message = document.getElementById('passkey-message');
-        message.innerText = 'Starting passkey login...';
+        messageEl.innerText = 'Authenticating...';
 
         try {
-            // 1. Get options from server
             const resp = await fetch('/webauthn/login/options');
             const options = await resp.json();
 
-            // 2. Start authentication
             const asseResp = await startAuthentication(options);
 
-            // 3. Verify with server
             const verificationResp = await fetch('/webauthn/login/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -52,14 +71,8 @@
             const verificationJSON = await verificationResp.json();
 
             if (verificationJSON && verificationJSON.verified) {
-                message.innerText = 'Success! Redirecting...';
-                // Redirect back to authorize endpoint to complete flow
-                // We need to preserve the original query params.
-                // Since we are in a SPA-like flow here, we can just reload the page 
-                // or post to a completion endpoint.
-                // For simplicity, we'll post to a special endpoint that sets the session and redirects.
+                messageEl.innerText = 'Success!';
 
-                // Construct the original authorize URL
                 const params = new URLSearchParams({
                     client_id: '{{client_id}}',
                     redirect_uri: '{{redirect_uri}}',
@@ -72,10 +85,11 @@
 
                 window.location.href = `/authorize?${params.toString()}`;
             } else {
-                message.innerText = 'Verification failed: ' + JSON.stringify(verificationJSON);
+                messageEl.innerText = 'Failed.';
+                console.error(verificationJSON);
             }
         } catch (error) {
-            message.innerText = 'Error: ' + error.message;
+            messageEl.innerText = 'Error occurred.';
             console.error(error);
         }
     });

@@ -1,17 +1,36 @@
-<h1>OIDC Authorization Server</h1>
-<p>Welcome to the OIDC Server.</p>
+<div class="card">
+    <div style="text-align: center;">
+        <span class="icon" style="font-size: 48px; color: var(--md-sys-color-primary);">admin_panel_settings</span>
+        <h1 class="headline-medium" style="margin-top: 16px;">OIDC Server</h1>
+        <p class="body-medium">Identity Provider Dashboard</p>
+    </div>
 
-<h2>Quick Links</h2>
-<ul>
-    <li>
-        <a
-            href="/authorize?client_id=oidc-client-test&redirect_uri=http://localhost:3000/callback&response_type=code&scope=openid&state=123&code_challenge=xyz&code_challenge_method=plain">
-            Test Login Flow (Client: oidc-client-test)
+    <div>
+        <h2 class="title-medium" style="margin-bottom: 12px; text-align: center;">Quick Actions</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="/authorize?client_id=oidc-client-test&redirect_uri=http://localhost:3000/callback&response_type=code&scope=openid&state=123&code_challenge=xyz&code_challenge_method=plain"
+                class="btn btn-primary btn-full" style="text-decoration: none;">
+                <span class="icon">play_arrow</span>
+                Test Login Flow
+            </a>
+
+            <a href="/profile" class="btn btn-tonal btn-full" style="text-decoration: none;">
+                <span class="icon">person_add</span>
+                Manage Passkeys
+            </a>
+        </div>
+    </div>
+
+    <div class="divider">Developer Info</div>
+
+    <div style="display: flex; gap: 12px; justify-content: center;">
+        <a href="/.well-known/openid-configuration" class="btn btn-text">
+            <span class="icon">description</span>
+            Discovery
         </a>
-    </li>
-    <li><a href="/.well-known/openid-configuration">Discovery Document</a></li>
-    <li><a href="/jwks">JWKS</a></li>
-</ul>
-
-<h2>Registered Users</h2>
-<p>To register a passkey, log in first, then go to <a href="/profile">/profile</a>.</p>
+        <a href="/jwks" class="btn btn-text">
+            <span class="icon">key</span>
+            JWKS
+        </a>
+    </div>
+</div>

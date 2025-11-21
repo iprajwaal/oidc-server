@@ -1,27 +1,44 @@
-<h1>Register New Passkey</h1>
-<p>User: {{user.username}}</p>
+<div class="card">
+    <div style="text-align: center;">
+        <span class="icon" style="font-size: 48px; color: var(--md-sys-color-primary);">fingerprint</span>
+        <h1 class="headline-medium" style="margin-top: 16px;">Passkeys</h1>
+        <p class="body-medium">Manage credentials for <b>{{user.username}}</b></p>
+    </div>
 
-<button id="btn-register">Register Passkey</button>
-<p id="message"></p>
-<br>
-<a href="/">Back to Home</a>
+    <div style="background-color: var(--md-sys-color-surface-variant); padding: 16px; border-radius: 8px;">
+        <p class="body-medium" style="margin-bottom: 8px;"><strong>Why Passkeys?</strong></p>
+        <p class="body-medium">Passkeys are a safer and easier replacement for passwords. With passkeys, you can sign in
+            with your fingerprint, face scan, or screen lock.</p>
+    </div>
+
+    <button id="btn-register" class="btn btn-primary btn-full">
+        <span class="icon">add_circle</span>
+        Create New Passkey
+    </button>
+
+    <p id="message" class="body-medium" style="text-align: center; color: var(--md-sys-color-primary);"></p>
+
+    <div class="divider"></div>
+
+    <a href="/" class="btn btn-text btn-full" style="text-decoration: none;">
+        <span class="icon">arrow_back</span>
+        Back to Dashboard
+    </a>
+</div>
 
 <script>
     const { startRegistration } = SimpleWebAuthnBrowser;
+    const messageEl = document.getElementById('message');
 
     document.getElementById('btn-register').addEventListener('click', async () => {
-        const message = document.getElementById('message');
-        message.innerText = 'Starting registration...';
+        messageEl.innerText = 'Registering...';
 
         try {
-            // 1. Get options
             const resp = await fetch('/webauthn/register/options');
             const options = await resp.json();
 
-            // 2. Start registration
             const attResp = await startRegistration(options);
 
-            // 3. Verify
             const verificationResp = await fetch('/webauthn/register/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -31,12 +48,12 @@
             const verificationJSON = await verificationResp.json();
 
             if (verificationJSON && verificationJSON.verified) {
-                message.innerText = 'Success! Passkey registered.';
+                messageEl.innerText = 'Passkey registered successfully!';
             } else {
-                message.innerText = 'Verification failed: ' + JSON.stringify(verificationJSON);
+                messageEl.innerText = 'Failed to register.';
             }
         } catch (error) {
-            message.innerText = 'Error: ' + error.message;
+            messageEl.innerText = 'Error: ' + error.message;
             console.error(error);
         }
     });
